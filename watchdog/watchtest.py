@@ -13,7 +13,8 @@ class OneDirHandler(FileSystemEventHandler):
 
     def on_created(self, event):
         # Show loading
-        response = requests.post(url,files={'file': open(event.src_path,'rb')})
+        #response = requests.post(url,files={'file': open(event.src_path,'rb')})
+        print "A file was created: ( " + event.src_path + " )!"
         #Send finish loading signal
 
     def on_deleted(self, event):
