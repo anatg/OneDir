@@ -6,12 +6,14 @@ import logging
 from watchdog.observers import Observer
 from watchdog.events import LoggingEventHandler
 from watchdog.events import FileSystemEventHandler
+import requests
+url = "http://localhost:8000/file_demo/upload_file/"
 
 class OneDirHandler(FileSystemEventHandler):
 
     def on_created(self, event):
         # Show loading
-        print "A file was created! ( " + event.src_path + " )"
+        response = requests.post(url,files={'file': open(event.src_path,'rb')})
         #Send finish loading signal
 
     def on_deleted(self, event):
@@ -22,6 +24,7 @@ class OneDirHandler(FileSystemEventHandler):
         # Show loading
         print "Someone just took a trip to a new place..."
         # Send finish loading signal
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
