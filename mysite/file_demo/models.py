@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.files.storage import FileSystemStorage
 
-fs = FileSystemStorage(location='/home/cls2be/Django_Projects/files/')
+fs = FileSystemStorage()
 
 # Create your models here.
 class Data(models.Model):
