@@ -11,6 +11,7 @@ web = client.post('http://localhost:8000/file_demo/login/',data=credentials, hea
 secure_cookie = web.cookies
 print web.content
 print web.cookies
-web = requests.get('http://localhost:8000/file_demo/cookie_test/',cookies=secure_cookie)
+web = requests.get('http://localhost:8000/file_demo/cookie_test/')
+#web = requests.get('http://localhost:8000/file_demo/cookie_test/',cookies=secure_cookie)
 print web.content
 

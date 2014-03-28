@@ -46,21 +46,6 @@ def check_username(request):
             #return username is unique
         return response
 
-def check_password(request):
-    if request.method == 'POST':
-        response = HttpResponse()
-        password = request.POST['password']
-        if len(password) < 8:
-            response.content = "Password is not long enough"
-            response.reason_phrase = "Password must be at least 8 characters long"
-            response.status_code = 499
-            #return password is not long enough
-        else:
-            response.content = "Password is acceptable"
-            response.status_code = 200
-            #return password is long enough
-        return response
-
 def register(request):
     if request.method == 'POST':
         response = HttpResponse()
@@ -77,13 +62,16 @@ def login_view(request):
         if user is not None:
             if user.is_active:
                 response.content = "logged in"
+                response.status_code = 200
                 login(request, user)
+                response.set_cookie('mfusername', username)
             else:
                 response.content = "not logged in"
+                response.status_code = 499
         else:
             response.content = "not logged in"
+            response.status_code = 499
 
-        response.set_cookie('mfusername', username)
         return response
     else:
         return HttpResponse()
