@@ -9,7 +9,8 @@ from django.contrib.auth import authenticate, login
 from file_demo.models import Data
 from django.forms import Form
 
-# Create your views here.
+# Handles the file upload,
+# TODO: associate file with user
 @csrf_exempt
 def upload_file(request):
     if request.method == 'POST':
@@ -32,6 +33,9 @@ def upload_file(request):
         context_instance=RequestContext(request)
     )
 
+#Expects a username through POST data
+# checks to ensure username is not already taken
+# returns a 498 status code if taken or a 200 if it is unique
 def check_username(request):
     if request.method == 'POST':
         response = HttpResponse()
@@ -46,12 +50,21 @@ def check_username(request):
             #return username is unique
         return response
 
+# Registers user, expects a username and password
+# NOTE: username and password should already be validated and appropriate
+# TODO: Login the user after registering them
+# TODO: Pass user's cookie back with response
+# TODO: Check if csrf token handling is needed here
 def register(request):
     if request.method == 'POST':
         response = HttpResponse()
         user = User.objects.create_user(request.POST['username'], request.POST['password'])
         user.save()
 
+# Expects post data with a header with a csrf token and POST data with a username and password
+# checks if username and password is valid and then logs in the user
+# returns a cookie with user's session if successful and a status code of 200
+# returns a status code of 499 if unsuccessful
 @ensure_csrf_cookie
 def login_view(request):
     if request.method == 'POST':
@@ -76,6 +89,8 @@ def login_view(request):
     else:
         return HttpResponse()
 
+# Test if a user login was succesful
+# A cookie with the appropriate session id is expected in the request
 def cookie_test(request):
     if request.user.is_authenticated():
         return HttpResponse("Authenticated")
