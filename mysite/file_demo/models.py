@@ -10,14 +10,13 @@ class Data(models.Model):
     def __str__(self):
         return self.file.name
 
-#TODO: Add another way to give this function a directory structure
 def file(self, filename):
-    url = "users/%s/%s" % (self.user.username, filename)
+    url = "users/%s/%s/%s" % (self.user.username, self.directory, filename)
     return url
 
-#TODO: Figure out how to pass directory structure from view to file function here
 class UserFiles(models.Model):
     user = models.ForeignKey(User)
+    directory = models.TextField()
     file = models.FileField(upload_to=file, storage=fs, blank=False, null=False)
     def __str__(self):
         return 'User: ' + self.user.username + ', file: ' + self.file.name
