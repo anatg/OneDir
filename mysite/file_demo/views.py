@@ -2,30 +2,35 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.template.context import RequestContext
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
-from django.shortcuts import render, render_to_response
-#from django.core.context_processors import csrf
+from django.shortcuts import render_to_response
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
-from file_demo.models import Data
+from file_demo.models import UserFiles
 from django.forms import Form
 
 # Handles the file upload,
-# TODO: associate file with user
+# TODO: Check for logged in user and handle if user is not authenticated
 @csrf_exempt
 def upload_file(request):
     if request.method == 'POST':
-        print "-------------------------upload file"
-        form = Form(request.POST, request.FILES)
-        if form.is_valid():
-            print "file valid"
-            print request.FILES
-            instance = Data(file=request.FILES['file'])
-            instance.save()
-            return HttpResponseRedirect(reverse('file_demo.views.upload_file'))
+        if request.user.is_authenticated():
+            print "-------------------------upload file"
+            form = Form(request.POST, request.FILES)
+            if form.is_valid():
+                print "file valid"
+                print request.FILES
+                instance = UserFiles(user=request.user,directory=request.POST['directory'], file=request.FILES['file'])
+                instance.save()
+                return HttpResponseRedirect(reverse('file_demo.views.upload_file'))
+        else:
+            response = HttpResponse()
+            response.content = "User not authenticated"
+            response.status_code = 497
+            return response
     else:
         form = Form()
 
-    documents = Data.objects.all()
+    documents = UserFiles.objects.all()
 
     return render_to_response(
         'file_demo/upload_file.html',
@@ -36,6 +41,7 @@ def upload_file(request):
 #Expects a username through POST data
 # checks to ensure username is not already taken
 # returns a 498 status code if taken or a 200 if it is unique
+@csrf_exempt
 def check_username(request):
     if request.method == 'POST':
         response = HttpResponse()
@@ -52,14 +58,24 @@ def check_username(request):
 
 # Registers user, expects a username and password
 # NOTE: username and password should already be validated and appropriate
-# TODO: Login the user after registering them
-# TODO: Pass user's cookie back with response
-# TODO: Check if csrf token handling is needed here
+@ensure_csrf_cookie
 def register(request):
     if request.method == 'POST':
         response = HttpResponse()
-        user = User.objects.create_user(request.POST['username'], request.POST['password'])
+        username = request.POST['username']
+        password = request.POST['password']
+        user = User.objects.create_user(username, '',password)
         user.save()
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                response.set_cookie('mfusername', username)
+        response.content = "Registered User"
+        response.status_code = 200
+        return response
+    else:
+        return HttpResponse()
 
 # Expects post data with a header with a csrf token and POST data with a username and password
 # checks if username and password is valid and then logs in the user
@@ -85,6 +101,26 @@ def login_view(request):
             response.content = "not logged in"
             response.status_code = 499
 
+        return response
+    else:
+        return HttpResponse()
+
+#Change user's password
+#Expects a user cookie and password through POST
+#returns a 200 code for success and a 497 for failure
+@ensure_csrf_cookie
+def change_password(request):
+    if request.method == 'POST':
+        response = HttpResponse()
+        if request.user.is_authenticated():
+            password = request.POST['password']
+            request.user.set_password(password)
+            request.user.save()
+            response.content = "User password change successful"
+            response.status_code = 200
+        else:
+            response.content = "User not authenticated"
+            response.status_code = 497
         return response
     else:
         return HttpResponse()
