@@ -3,9 +3,9 @@ __author__ = 'Alex Charters'
 import sys
 import time
 import logging
-from watchdog.observers import Observer
-from watchdog.events import LoggingEventHandler
-from watchdog.events import FileSystemEventHandler
+from monitor.observers import Observer
+from monitor.events import LoggingEventHandler
+from monitor.events import FileSystemEventHandler
 import requests
 url = "http://localhost:8000/file_demo/upload_file/"
 
