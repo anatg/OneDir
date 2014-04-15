@@ -11,7 +11,7 @@ from django.conf import settings
 import json_helper, json
 
 # Handles the file upload,
-#TODO: Test updated version
+#TODO: Make function return updated json file
 @csrf_exempt
 def upload_file(request):
     if request.method == 'POST':
@@ -23,9 +23,13 @@ def upload_file(request):
                 print request.FILES
                 instance = UserFiles(user=request.user,directory=request.POST['directory'], file=request.FILES['file'])
                 instance.save()
-                json_helper.update_file(settings.MEDIA_ROOT+str(request.user.username)+'/',
-                                        '/'+request.POST['directory']+'/'+request.POST['file'])
-                return HttpResponseRedirect(reverse('file_demo.views.upload_file'))
+                json_helper.update_file(settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/', instance.file.name)
+                response = HttpResponse()
+                response.content = json.dumps(json_helper.read_json(settings.MEDIA_ROOT+'users/'+
+                                                            str(request.user.username)+'/file_list.txt'))
+                response['Content-Type'] = 'application/json'
+                response.status_code = 200
+                return response
         else:
             response = HttpResponse()
             response.content = "User not authenticated"
@@ -61,7 +65,7 @@ def check_username(request):
 
 # Registers user, expects a username and password
 # NOTE: username and password should already be validated and appropriate
-#TODO: Test updated version
+# returns the initial empty json file
 @ensure_csrf_cookie
 def register(request):
     if request.method == 'POST':
@@ -71,12 +75,14 @@ def register(request):
         user = User.objects.create_user(username, '',password)
         user.save()
         user = authenticate(username=username, password=password)
-        json_helper.create_json(settings.MEDIA_ROOT+str(request.user.username)+'/')
+        json_helper.create_user_folder(settings.MEDIA_ROOT+'users/'+str(user.username)+'/')
+        json_helper.create_json(settings.MEDIA_ROOT+'users/'+str(user.username)+'/')
         if user is not None:
             if user.is_active:
                 login(request, user)
                 response.set_cookie('mfusername', username)
-        response.content = json.dumps(json_helper.read_json(settings.MEDIA_ROOT+str(user.username)+'/'))
+        response.content = json.dumps(json_helper.read_json(settings.MEDIA_ROOT+
+                                                            'users/'+str(user.username)+'/file_list.txt'))
         response.status_code = 200
         return response
     else:
@@ -134,11 +140,11 @@ def change_password(request):
 # user must be authenticated
 #If successful returns user json and status code 200
 #If fails returns status code 497
-#TODO: Test updated version
 def json_request(request):
     response = HttpResponse()
     if request.user.is_authenticated():
-        response.content = json.dumps(json_helper.read_json(settings.MEDIA_ROOT+str(request.user.username)+'/'))
+        response.content = json.dumps(json_helper.read_json(settings.MEDIA_ROOT+'users/'+
+                                                            str(request.user.username)+'/file_list.txt'))
         response['Content-Type'] = 'application/json'
         response.status_code = 200
     else:
@@ -149,17 +155,19 @@ def json_request(request):
 # Deletes user's file
 # Expects user to be authenticated, a file directory, and a file name
 # Returns updated json file
-#TODO: Test updated version
 @csrf_exempt
 def delete_file(request):
     if request.method == 'POST':
         response = HttpResponse()
         if request.user.is_authenticated():
-            filename = request.POST['directory'] + '/' + request.POST['file']
+            filename = 'users/'+request.user.username + '/' + request.POST['directory'] + '/' + request.POST['file']
             file = UserFiles.objects.filter(user__username=request.user.username).get(file=filename)
             file.delete()
-            json_helper.delete_file(settings.MEDIA_ROOT+str(request.user.username)+'/', filename)
-            response.content = json.dumps(json_helper.read_json(settings.MEDIA_ROOT+str(request.user.username)+'/'))
+            json_helper.delete_file(settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/', filename,
+                                    settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/'+
+                                    request.POST['directory'] + '/' + request.POST['file'])
+            response.content = json.dumps(json_helper.read_json(settings.MEDIA_ROOT+'users/'+
+                                                                str(request.user.username)+'/file_list.txt'))
             response['Content-Type'] = 'application/json'
             response.status_code = 200
         else:
