@@ -62,7 +62,3 @@ class CombinedWatcher:
             observer.stop()
         observer.join()
 
-if __name__ == "__main__":
-    cookies = None
-    c = CombinedWatcher(cookies)
-    c.start()
