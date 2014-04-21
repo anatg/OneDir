@@ -2,29 +2,18 @@ __author__ = 'Alex Charters'
 import requests
 import time
 
-def upload_worker(string, cookcook):
+def upload_worker(string, cookbythebook):
     #basic file created upload worker process
     print "Creation subprocess started."
-    #
-    # client = requests.session()
-    # client.get('http://localhost:8000/file_demo/login/')
-    # csrf = client.cookies['csrftoken']
-    # print csrf
-    # credentials = {'username': 'test2', 'password':'password'}
-    # header = {'X-CSRFToken': csrf}
-    # web = client.post('http://localhost:8000/file_demo/login/', data=credentials, headers=header)
-    # secure_cookie = web.cookies
-    # print web.cookies
-    # print web.content
-    # web = requests.get('http://localhost:8000/file_demo/cookie_test/',cookies=secure_cookie)
-    # print web.content
+
+    #parse from full filepath
     directory = {'directory': 'myfiles/supersecret'}
     url = "http://localhost:8000/file_demo/upload_file/"
-    response = requests.post(url,files={'file': open(string, 'rb')}, data=directory, cookies=cookcook)
+    response = requests.post(url,files={'file': open(string, 'rb')}, data=directory, cookies=cookbythebook)
     print response.content[0:7000]
     print "Creation process finished for " + string + " ."
 
-def modified_worker(string):
+def modified_worker(string, cookbythebook):
     # file from server needs to be deleted
     # then upload the file to the server
     print "Modification process started."
