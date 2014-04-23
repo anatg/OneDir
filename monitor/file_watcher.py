@@ -37,6 +37,7 @@ class OneDirHandler(FileSystemEventHandler):
         p1 = multiprocessing.Process(target=modified_worker, args=(filepath, CombinedWatcher.secured_cookie,))
         # master_queue.put_nowait(p1)
         p1.start()
+        p1.join()
 
 class CombinedWatcher:
     secured_cookie = None
