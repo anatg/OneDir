@@ -42,7 +42,7 @@ import requests
 # client.get('http://localhost:8000/file_demo/login/')
 # csrf = client.cookies['csrftoken']
 # #print csrf
-# credentials = {'username': 'test4', 'password':'password'}
+# credentials = {'username': 'test2', 'password':'password'}
 # header = {'X-CSRFToken': csrf}
 # web = client.post('http://localhost:8000/file_demo/login/', data=credentials, headers=header)
 # secure_cookie = web.cookies
@@ -95,17 +95,35 @@ import requests
 # print web.content[0:7000]
 
 #Test delete file function
+# client = requests.session()
+# client.get('http://localhost:8000/file_demo/login/')
+# csrf = client.cookies['csrftoken']
+# #print csrf
+# credentials = {'username': 'test2', 'password':'password'}
+# header = {'X-CSRFToken': csrf}
+# web = client.post('http://localhost:8000/file_demo/login/', data=credentials, headers=header)
+# secure_cookie = web.cookies
+# # print web.cookies
+# print web.content[0:7000]
+# directory = {'directory': 'myfiles/supersecret', 'file': 'test1.txt'}
+# web = requests.post('http://localhost:8000/file_demo/delete_file/', data=directory, cookies=secure_cookie)
+# #web = requests.get('http://localhost:8000/file_demo/delete_file/', data=directory)
+# print web.content[0:7000]
+
+#TEST file download
 client = requests.session()
 client.get('http://localhost:8000/file_demo/login/')
 csrf = client.cookies['csrftoken']
 #print csrf
-credentials = {'username': 'test4', 'password':'password'}
+credentials = {'username': 'test2', 'password':'password'}
 header = {'X-CSRFToken': csrf}
 web = client.post('http://localhost:8000/file_demo/login/', data=credentials, headers=header)
 secure_cookie = web.cookies
-# print web.cookies
-print web.content[0:7000]
+#print web.cookies
+print web.content
+web = requests.get('http://localhost:8000/file_demo/cookie_test/',cookies=secure_cookie)
+print web.content
 directory = {'directory': 'myfiles/supersecret', 'file': 'test1.txt'}
-web = requests.post('http://localhost:8000/file_demo/delete_file/', data=directory, cookies=secure_cookie)
-#web = requests.get('http://localhost:8000/file_demo/delete_file/', data=directory)
-print web.content[0:7000]
+url = "http://localhost:8000/file_demo/download_file/"
+response = requests.post(url, data=directory, cookies=secure_cookie)
+print response.content[0:7000]
