@@ -11,13 +11,17 @@ import multiprocessing
 
 master_queue = multiprocessing.JoinableQueue()
 
+
+
 class OneDirHandler(FileSystemEventHandler):
+    def __init__(self, cookie):
+        self.cook = cookie
 
     def on_created(self, event):
         filepath = event.src_path
         #response = requests.post(url,files={'file': open(event.src_path,'rb')})
         print "A file was created: ( " + event.src_path + " )!"
-        p1 = multiprocessing.Process(target=upload_worker, args=(filepath, CombinedWatcher.secured_cookie,))
+        p1 = multiprocessing.Process(target=upload_worker, args=(filepath, self.cook,))
         #master_queue.put_nowait(p1)
         p1.start()
         #Send finish loading signal
@@ -25,7 +29,7 @@ class OneDirHandler(FileSystemEventHandler):
     def on_deleted(self, event):
         filepath = event.src_path
         print "A file was deleted! ( " + event.src_path + " )!"
-        p1 = multiprocessing.Process(target=delete_worker, args=(filepath, CombinedWatcher.secured_cookie,))
+        p1 = multiprocessing.Process(target=delete_worker, args=(filepath, OneDirHandler.cook,))
         #master_queue.put_nowait(p1)
         p1.start()
 
@@ -34,21 +38,22 @@ class OneDirHandler(FileSystemEventHandler):
         # Renaming is the same as moving
         # Show loading
         print "The file " + event.src_path + " was modified."
-        p1 = multiprocessing.Process(target=modified_worker, args=(filepath, CombinedWatcher.secured_cookie,))
+        p1 = multiprocessing.Process(target=modified_worker, args=(filepath, OneDirHandler.cook,))
         # master_queue.put_nowait(p1)
         p1.start()
         p1.join()
 
+
+
 class CombinedWatcher:
-    secured_cookie = None
     def __init__(self, cookie):
-        secured_cookie = cookie
+        self.secured_cookie = cookie
     def start(self):
         logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
         path = sys.argv[1] if len(sys.argv) > 1 else '.'
 
         # Custom overwrites of the functions
-        event_handler = OneDirHandler()
+        event_handler = OneDirHandler(self.secured_cookie)
 
         # Records everything
         #event_handler = LoggingEventHandler()
