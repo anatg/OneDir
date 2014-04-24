@@ -77,14 +77,12 @@ def main():
         if str(res).startswith('y'):
             change_password(secure_cookie)
         print "starting onedir service..."
-        cookies = secure_cookie
-        c = CombinedWatcher(cookies)
+        c = CombinedWatcher(secure_cookie)
         c.start()
     elif str(response).startswith('n'):
         secure_cookie = register_user()
         print "staring ondir service..."
-        cookies = secure_cookie
-        c = CombinedWatcher(cookies)
+        c = CombinedWatcher(secure_cookie)
         c.start()
     else:
         print "you suck"
