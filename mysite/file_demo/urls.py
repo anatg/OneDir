@@ -13,4 +13,5 @@ urlpatterns = patterns('',
     url(r'^change_password/$', views.change_password, name='change_password'),
     url(r'^json_request/$', views.json_request, name='json_request'),
     url(r'^delete_file/$', views.delete_file, name='delete_file'),
+    url(r'^download_file/$', views.download_file, name='download_file'),
 )

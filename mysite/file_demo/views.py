@@ -1,5 +1,6 @@
 from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
+from django.core.servers.basehttp import FileWrapper
 from django.template.context import RequestContext
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.shortcuts import render_to_response
@@ -8,10 +9,9 @@ from django.contrib.auth import authenticate, login
 from file_demo.models import UserFiles
 from django.forms import Form
 from django.conf import settings
-import json_helper, json
+import json_helper, json, mimetypes, os
 
 # Handles the file upload,
-#TODO: Make function return updated json file
 @csrf_exempt
 def upload_file(request):
     if request.method == 'POST':
@@ -22,8 +22,13 @@ def upload_file(request):
                 print "file valid"
                 print request.FILES
                 instance = UserFiles(user=request.user,directory=request.POST['directory'], file=request.FILES['file'])
+                json_helper.update_file(settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/',
+                                        request.POST['directory']+'/'+instance.file.name,
+                                        settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/'+
+                                        request.POST['directory'] + '/' + instance.file.name)
                 instance.save()
-                json_helper.update_file(settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/', instance.file.name)
+                json_helper.logger(settings.MEDIA_ROOT+'log.txt', request.user.username, 'updated file: ', instance.file.name)
+
                 response = HttpResponse()
                 response.content = json.dumps(json_helper.read_json(settings.MEDIA_ROOT+'users/'+
                                                             str(request.user.username)+'/file_list.txt'))
@@ -155,17 +160,22 @@ def json_request(request):
 # Deletes user's file
 # Expects user to be authenticated, a file directory, and a file name
 # Returns updated json file
+#TODO: Handle case where file has already been deleted, need try, catch
 @csrf_exempt
 def delete_file(request):
     if request.method == 'POST':
         response = HttpResponse()
         if request.user.is_authenticated():
-            filename = 'users/'+request.user.username + '/' + request.POST['directory'] + '/' + request.POST['file']
-            file = UserFiles.objects.filter(user__username=request.user.username).get(file=filename)
+            filename = request.POST['directory'] + '/' + request.POST['file']
+            file = UserFiles.objects.filter(user__username=request.user.username).get(file=('users/'+
+                                                                                            str(request.user.username)+
+                                                                                            '/'+filename))
             file.delete()
             json_helper.delete_file(settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/', filename,
                                     settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/'+
                                     request.POST['directory'] + '/' + request.POST['file'])
+            json_helper.logger(settings.MEDIA_ROOT+'log.txt', request.user.username, 'updated file: ', filename)
+
             response.content = json.dumps(json_helper.read_json(settings.MEDIA_ROOT+'users/'+
                                                                 str(request.user.username)+'/file_list.txt'))
             response['Content-Type'] = 'application/json'
@@ -175,6 +185,29 @@ def delete_file(request):
             response.status_code = 497
         return response
     else :
+        return HttpResponse()
+
+#Downloads file specified in post request
+# expects directory and file
+# returns file
+@csrf_exempt
+def download_file(request):
+    if request.method == 'POST':
+        if request.user.is_authenticated():
+            filename = settings.MEDIA_ROOT + 'users/'+str(request.user.username)+'/'+request.POST['directory'] + \
+                       '/' + request.POST['file']
+            response = HttpResponse(FileWrapper(open(filename)), content_type=mimetypes.guess_type(filename)[0])
+            response['Content-Length'] = os.path.getsize(filename)
+            response['Content-Disposition'] = "attachment; filename=%s" % filename
+            response.status_code = 200
+            json_helper.logger(settings.MEDIA_ROOT+'log.txt', request.user.username, 'downloaded file: ', filename)
+            return response
+        else :
+            response = HttpResponse()
+            response.content = "Failed to authenticate"
+            response.status_code = 495
+            return response
+    else:
         return HttpResponse()
 
 
