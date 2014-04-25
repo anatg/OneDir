@@ -9,7 +9,6 @@ from file_watcher import *
 
 def login():
     status_code = 0
-
     username = raw_input('Enter username:')
     password = raw_input('Enter password:')
     client = requests.session()

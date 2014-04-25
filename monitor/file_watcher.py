@@ -18,30 +18,40 @@ class OneDirHandler(FileSystemEventHandler):
         self.cook = cookie
 
     def on_created(self, event):
-        filepath = event.src_path
-        #response = requests.post(url,files={'file': open(event.src_path,'rb')})
-        print "A file was created: ( " + event.src_path + " )!"
-        p1 = multiprocessing.Process(target=upload_worker, args=(filepath, self.cook,))
-        #master_queue.put_nowait(p1)
-        p1.start()
-        #Send finish loading signal
+        if event.is_directory is True:
+            print "A directory was created: ( " + event.src_path + " )!"
+        else:
+            filepath = event.src_path
+            #response = requests.post(url,files={'file': open(event.src_path,'rb')})
+            print "A file was created: ( " + event.src_path + " )!"
+
+            p1 = multiprocessing.Process(target=upload_worker, args=(filepath, self.cook,))
+            p1.start()
+
 
     def on_deleted(self, event):
-        filepath = event.src_path
-        print "A file was deleted! ( " + event.src_path + " )!"
-        p1 = multiprocessing.Process(target=delete_worker, args=(filepath, OneDirHandler.cook,))
-        #master_queue.put_nowait(p1)
-        p1.start()
+        if event.is_directory is True:
+            print "A folder was deleted: ( " + event.src_path + " )!"
+        else:
+            filepath = event.src_path
+            print "A file was deleted! ( " + event.src_path + " )!"
+            p1 = multiprocessing.Process(target=delete_worker, args=(filepath, self.cook,))
+            #master_queue.put_nowait(p1)
+            p1.start()
 
     def on_moved(self, event):
-        filepath = event.src_path
-        # Renaming is the same as moving
-        # Show loading
-        print "The file " + event.src_path + " was modified."
-        p1 = multiprocessing.Process(target=modified_worker, args=(filepath, OneDirHandler.cook,))
-        # master_queue.put_nowait(p1)
-        p1.start()
-        p1.join()
+        if event.is_directory is True:
+            print "Folder was renamed."
+        else:
+            n_filepath = event.dest_path
+            o_filepath = event.src_path
+            # Renaming is the same as moving
+            # Show loading
+            print "The file " + event.src_path + " was modified."
+            p1 = multiprocessing.Process(target=modified_worker, args=(o_filepath,n_filepath, self.cook,))
+            # master_queue.put_nowait(p1)
+            p1.start()
+            p1.join()
 
 
 
