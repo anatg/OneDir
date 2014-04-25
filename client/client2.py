@@ -9,10 +9,10 @@ from django.conf import settings
 #url = "http://localhost:8000/file_demo/upload_file/"
 #response = requests.post(url,files={'file': open('test.txt','rb')})
 
-def check_datetime(text):
+def check_datetime():
     media_root = settings.MEDIA_ROOT
-    if os.path.isfile(media_root):
-        master = text.readlines()
+    if os.path.isfile(media_root + 'file_list.txt'):
+        master = str(media_root + 'file_list.txt').readlines()
     file_path = "od/monitor/saved_files/"
     if not os.path.isfile(file_path + 'file_list.txt'):
         json_helper.create_json(file_path)
@@ -24,7 +24,7 @@ def check_datetime(text):
     for file in range(os.listdir(file_path)):
         if file not in data:
             data = json_helper.update_file(file_path, file, file_path + file)
-    
+
 
 
 def login():
