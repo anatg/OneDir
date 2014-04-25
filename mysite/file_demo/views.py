@@ -1,17 +1,26 @@
-from django.http import HttpResponseRedirect, HttpResponse
-from django.core.urlresolvers import reverse
+import json
+import mimetypes
+import os
+
+from django.http import HttpResponse
 from django.core.servers.basehttp import FileWrapper
 from django.template.context import RequestContext
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from django.shortcuts import render_to_response
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
-from file_demo.models import UserFiles
 from django.forms import Form
 from django.conf import settings
-import json_helper, json, mimetypes, os
+
+from OneDir.mysite.file_demo.models import UserFiles
+
+
+
 
 # Handles the file upload,
+from OneDir.helpers import json_helper
+
+
 @csrf_exempt
 def upload_file(request):
     if request.method == 'POST':

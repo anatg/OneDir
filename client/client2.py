@@ -1,10 +1,12 @@
+from OneDir.helpers import json_helper
+
 __author__ = 'Anat'
 
 import requests
 import datetime
-import json, json_helper
 import os
 from django.conf import settings
+from OneDir.helpers import json_helper
 
 #url = "http://localhost:8000/file_demo/upload_file/"
 #response = requests.post(url,files={'file': open('test.txt','rb')})
