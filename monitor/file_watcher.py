@@ -8,6 +8,7 @@ from watchdog.events import LoggingEventHandler
 from watchdog.events import FileSystemEventHandler
 from transfer_manager import upload_worker, delete_worker, modified_worker
 import multiprocessing
+import os
 
 master_queue = multiprocessing.JoinableQueue()
 
@@ -41,15 +42,18 @@ class OneDirHandler(FileSystemEventHandler):
 
     def on_moved(self, event):
         if event.is_directory is True:
-            print "Folder was renamed."
+            print "Folder ( " + event.src_path + ") was renamed to ( " + event.dest_path + " )."
+            # ALTER EVERYTHING CONTAINED IN SAID FOLDER
+            #for filename in os.listdir():
+             #   modified_worker()
         else:
             n_filepath = event.dest_path
             o_filepath = event.src_path
-            # Renaming is the same as moving
-            # Show loading
+
+
             print "The file " + event.src_path + " was modified."
             p1 = multiprocessing.Process(target=modified_worker, args=(o_filepath,n_filepath, self.cook,))
-            # master_queue.put_nowait(p1)
+
             p1.start()
             p1.join()
 

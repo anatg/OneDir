@@ -9,6 +9,10 @@ def file_strip(fullpath):
     head, tail = os.path.split(fullpath)
     return tail
 
+def fold_strip(shortpath):
+    head, tail = os.path.split(shortpath)
+    return head
+
 def directory_finder(fullpath):
     head, tail = os.path.split(fullpath)
     with_slash = head.split(home_directory)[1]
@@ -16,16 +20,19 @@ def directory_finder(fullpath):
     return without_slash
 
 def upload_worker(string, cookbythebook):
-    #basic file created upload worker process
+
     print "Creation subprocess started."
-    #NEED TO PARSE FROM FULL FILEPATH
 
-    file = file_strip(string)
+    filename = file_strip(string)
+    #location = directory_finder(string)
+    file_test = string.split("OneDir/monitor/")[1]
+    folder = fold_strip(file_test)
 
-    location = directory_finder(string)
-    directory = {'directory': location}
+    directory = {'directory': folder}
+
     url = "http://localhost:8000/file_demo/upload_file/"
-    response = requests.post(url,files={'file': open(file, 'rb')}, data=directory, cookies=cookbythebook)
+    response = requests.post(url,files={'file': open(file_test, 'rb')}, data=directory, cookies=cookbythebook)
+
     print response.content[0:7000]
     print "Creation process finished for " + string + " ."
 
@@ -40,11 +47,14 @@ def modified_worker(orig, dest_string, cookbythebook):
 
 
 def delete_worker(string, cookbythebook):
-    # insert code for sending server request that deletes a file
-    # URL PARSE FROM FILEPATH TO FIT DIRECTORY
+
     file = file_strip(string)
-    location = directory_finder(string)
-    directory = {'directory': location, 'file': file}
+    #location = directory_finder(string)
+    file_test = string.split("OneDir/monitor/")[1]
+    folder = fold_strip(file_test)
+
+    directory = {'directory': folder, 'file': file}
+
     web = requests.post('http://localhost:8000/file_demo/delete_file/', data=directory, cookies=cookbythebook)
     print web.content[0:7000]
     print "Delete process finished for " + string + " ."
