@@ -1,10 +1,20 @@
 __author__ = 'Anat'
 
 import requests
-
+import datetime
+import json
 
 #url = "http://localhost:8000/file_demo/upload_file/"
 #response = requests.post(url,files={'file': open('test.txt','rb')})
+
+def check_datetime(text1,text2 ):
+    DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+    other_time = text1["date_time"]
+    curr_time = text2["date_time"]
+    time1 = datetime.strftime(other_time, DATETIME_FORMAT)
+    time2 = datetime.strftime(curr_time, DATETIME_FORMAT)
+    if str(time1) > str(time2):
+        pass
 
 
 def login():
