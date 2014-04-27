@@ -172,14 +172,16 @@ def delete_file(request):
     if request.method == 'POST':
         response = HttpResponse()
         if request.user.is_authenticated():
-            filename = request.POST['directory'] + '/' + request.POST['file']
+            if request.POST['directory'] == '':
+                filename = request.POST['file']
+            else:
+                filename = request.POST['directory'] + '/' + request.POST['file']
             file = UserFiles.objects.filter(user__username=request.user.username).get(file=('users/'+
                                                                                             str(request.user.username)+
                                                                                             '/'+filename))
             file.delete()
             json_helper.delete_file(settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/', filename,
-                                    settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/'+
-                                    request.POST['directory'] + '/' + request.POST['file'])
+                                    settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/'+filename)
             json_helper.logger(settings.MEDIA_ROOT+'log.txt', request.user.username, 'updated file: ', filename)
 
             response.content = json.dumps(json_helper.read_json(settings.MEDIA_ROOT+'users/'+
