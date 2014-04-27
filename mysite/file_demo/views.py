@@ -1,7 +1,3 @@
-import json
-import mimetypes
-import os
-
 from django.http import HttpResponse
 from django.core.servers.basehttp import FileWrapper
 from django.template.context import RequestContext
@@ -11,14 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.forms import Form
 from django.conf import settings
-
-from OneDir.mysite.file_demo.models import UserFiles
-
-
-
-
-# Handles the file upload,
-import json_helper
+import json_helper, json, mimetypes, os
 
 
 @csrf_exempt
