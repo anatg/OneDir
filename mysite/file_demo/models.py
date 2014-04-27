@@ -3,8 +3,7 @@ from django.contrib import admin
 from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
 from django.conf import settings
-
-from OneDir.helpers import json_helper
+import json_helper
 
 
 fs = FileSystemStorage()

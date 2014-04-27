@@ -18,7 +18,7 @@ from OneDir.mysite.file_demo.models import UserFiles
 
 
 # Handles the file upload,
-from OneDir.helpers import json_helper
+import json_helper
 
 
 @csrf_exempt
