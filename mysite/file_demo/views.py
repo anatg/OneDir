@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.forms import Form
 from django.conf import settings
+from file_demo.models import UserFiles
 import json_helper, json, mimetypes, os
 
 
