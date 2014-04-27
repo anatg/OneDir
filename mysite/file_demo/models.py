@@ -42,7 +42,8 @@ from django.dispatch.dispatcher import receiver
 def userfiles_delete(sender, instance, **kwargs):
     # Pass false so FileField doesn't save the model.
     file_name = instance.file.name
-    file = file_name.replace(settings.MEDIA_ROOT+'users/'+str(instance.user.username)+'/', "")
+    file = file_name.replace('users/'+str(instance.user.username)+'/', "")
+    print file
     json_helper.delete_file(settings.MEDIA_ROOT+'users/'+str(instance.user.username)+'/', file,
                                     settings.MEDIA_ROOT+'users/'+str(instance.user.username)+'/'+instance.file.name)
     instance.file.delete(False)
