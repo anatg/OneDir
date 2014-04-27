@@ -20,11 +20,12 @@ def upload_file(request):
             if form.is_valid():
                 print "file valid"
                 print request.FILES
-                instance = UserFiles(user=request.user,directory=request.POST['directory'], file=request.FILES['file'])
+                directory = request.POST['directory']
+                instance = UserFiles(user=request.user,directory=directory, file=request.FILES['file'])
                 json_helper.update_file(settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/',
-                                        request.POST['directory']+'/'+instance.file.name,
+                                        directory+'/'+instance.file.name,
                                         settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/'+
-                                        request.POST['directory'] + '/' + instance.file.name)
+                                        directory + '/' + instance.file.name)
                 instance.save()
                 json_helper.logger(settings.MEDIA_ROOT+'log.txt', request.user.username, 'updated file: ', instance.file.name)
 
