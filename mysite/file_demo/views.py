@@ -22,10 +22,16 @@ def upload_file(request):
                 print request.FILES
                 directory = request.POST['directory']
                 instance = UserFiles(user=request.user,directory=directory, file=request.FILES['file'])
-                json_helper.update_file(settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/',
-                                        directory+'/'+instance.file.name,
-                                        settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/'+
-                                        directory + '/' + instance.file.name)
+                if directory == '':
+                     json_helper.update_file(settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/',
+                                            instance.file.name,
+                                            settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/'+
+                                            instance.file.name)
+                else:
+                    json_helper.update_file(settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/',
+                                            directory+'/'+instance.file.name,
+                                            settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/'+
+                                            directory + '/' + instance.file.name)
                 instance.save()
                 json_helper.logger(settings.MEDIA_ROOT+'log.txt', request.user.username, 'updated file: ', instance.file.name)
 
