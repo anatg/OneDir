@@ -20,22 +20,23 @@ import requests
 # print web.content
 
 #Test registering a user
-# credentials = {'username': 'test4'}
-# web = requests.post('http://localhost:8000/file_demo/check_username/', data=credentials)
-# print web.status_code
-# if web.status_code == 200:
-#     client = requests.session()
-#     client.get('http://localhost:8000/file_demo/register/')
-#     csrf = client.cookies['csrftoken']
-#     credentials = {'username': 'test4', 'password':'password'}
-#     header = {'X-CSRFToken': csrf}
-#     web = client.post('http://localhost:8000/file_demo/register/', data=credentials, headers=header)
-#     secure_cookie = web.cookies
-#     print web.content[0:7000]
-#     print web.status_code
-#     web = requests.get('http://localhost:8000/file_demo/cookie_test/',cookies=secure_cookie)
-#     #web = requests.get('http://localhost:8000/file_demo/cookie_test/')
-#     print web.content
+credentials = {'username': 'test4'}
+web = requests.post('http://localhost:8000/file_demo/check_username/', data=credentials)
+print web.status_code
+print web.content[0:7000]
+if web.status_code == 200:
+    client = requests.session()
+    client.get('http://localhost:8000/file_demo/register/')
+    csrf = client.cookies['csrftoken']
+    credentials = {'username': 'test4', 'password':'password'}
+    header = {'X-CSRFToken': csrf}
+    web = client.post('http://localhost:8000/file_demo/register/', data=credentials, headers=header)
+    secure_cookie = web.cookies
+    print web.content[0:7000]
+    print web.status_code
+    web = requests.get('http://localhost:8000/file_demo/cookie_test/',cookies=secure_cookie)
+    #web = requests.get('http://localhost:8000/file_demo/cookie_test/')
+    print web.content
 
 #Test associating file with users
 client = requests.session()

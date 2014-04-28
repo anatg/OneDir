@@ -3,6 +3,8 @@ __author__ = 'Alex'
 import requests
 from file_watcher import *
 
+#base = "ec2-54-86-59-86.compute-1.amazonaws.com:8000"
+base = "localhost:8000"
 #url = "http://localhost:8000/file_demo/upload_file/"
 #response = requests.post(url,files={'file': open('test.txt','rb')})
 
@@ -12,12 +14,12 @@ def login():
     username = raw_input('Enter username:')
     password = raw_input('Enter password:')
     client = requests.session()
-    client.get('http://localhost:8000/file_demo/login/')
+    client.get('http://' + base + '/file_demo/login/')
     csrf = client.cookies['csrftoken']
     #print csrf
     credentials = {'username': username, 'password': password}
     header = {'X-CSRFToken': csrf}
-    web = client.post('http://localhost:8000/file_demo/login/', data=credentials, headers=header)
+    web = client.post('http://' + base + '/file_demo/login/', data=credentials, headers=header)
     status_code = web.status_code
     secure_cookie = web.cookies
     while status_code !=200:
@@ -25,12 +27,12 @@ def login():
         username = raw_input('Enter username:')
         password = raw_input('Enter password:')
         client = requests.session()
-        client.get('http://localhost:8000/file_demo/login/')
+        client.get('http://'+ base +'/file_demo/login/')
         csrf = client.cookies['csrftoken']
         #print csrf
         credentials = {'username': username, 'password': password}
         header = {'X-CSRFToken': csrf}
-        web = client.post('http://localhost:8000/file_demo/login/', data=credentials, headers=header)
+        web = client.post('http://'+ base +'/file_demo/login/', data=credentials, headers=header)
         status_code = web.status_code
         secure_cookie = web.cookies
     return secure_cookie
@@ -43,24 +45,24 @@ def register_user():
     print "Register for OneDir!"
     username = raw_input('Username:')
     credentials = {'username': username}
-    web = requests.post('http://localhost:8000/file_demo/check_username/', data=credentials)
+    web = requests.post('http://'+ base +'/file_demo/check_username/', data=credentials)
     status_code = web.status_code
     while status_code !=200:
         print "username is taken. Try again!"
         username = raw_input('Username:')
         credentials = {'username': username}
-        web = requests.post('http://localhost:8000/file_demo/check_username/', data=credentials)
+        web = requests.post('http://'+ base +'/file_demo/check_username/', data=credentials)
         status_code = web.status_code
     password = raw_input('Enter a Password (less than 20 characters):')
     while len(password) > 20:
         print "Password too long!"
         password = raw_input('Enter password again!')
     client = requests.session()
-    client.get('http://localhost:8000/file_demo/login/')
+    client.get('http://'+ base +'/file_demo/login/')
     csrf = client.cookies['csrftoken']
     credentials = {'username': username, 'password': password}
     header = {'X-CSRFToken': csrf}
-    web = client.post('http://localhost:8000/file_demo/register/', data=credentials, headers=header)
+    web = client.post('http://'+ base +'/file_demo/register/', data=credentials, headers=header)
     secure_cookie = web.cookies
     print "registration successful!"
     return secure_cookie
@@ -99,13 +101,13 @@ def change_password(secure_cookie):
         print "Password too long!"
         new_password = raw_input('Enter new password again!')
     client2 = requests.session()
-    client2.get('http://localhost:8000/file_demo/change_password/')
+    client2.get('http://'+ base + '/file_demo/change_password/')
     print client2.cookies
     csrf2 = client2.cookies['csrftoken']
     secure_cookie['csrftoken'] = None
     header2 = {'X-CSRFToken': csrf2}
     credential2 = {'password': new_password}
-    web2 = client2.post('http://localhost:8000/file_demo/change_password/', data=credential2, headers=header2, cookies=secure_cookie)
+    web2 = client2.post('http://'+ base +'/file_demo/change_password/', data=credential2, headers=header2, cookies=secure_cookie)
     print web2.content[0:7000]
     print web2.status_code
 
