@@ -46,6 +46,7 @@ def check_datetime(secure_cookie):
                 # fix parse
 
                 cwd = str(os.getcwd())
+                print "cwd:" + cwd
                 file = item.split('/')[-1]
                 direct = item.replace('/'+file, "")
 
@@ -67,6 +68,10 @@ def check_datetime(secure_cookie):
             directory = {'directory': direct, 'file': file}
             response = requests.post(url, data=directory, cookies=secure_cookie)
             #FIGURE OUT HOW TO SAVE FILE RESPONSE
+            print direct
+            print home + "/OneDir/monitor/" + direct
+            if not os.path.exists(home + "/OneDir/monitor/" + direct):
+                os.makedirs(home + "/OneDir/monitor/" + direct)
             with open(item, 'wb') as f:
                 for chunk in response.iter_content():
                     f.write(chunk)
@@ -75,6 +80,7 @@ def check_datetime(secure_cookie):
         if item not in server_json:
             # fix parse
             cwd = str(os.getcwd())
+            print cwd
             file = item.split('/')[-1]
 
             os.remove(cwd + file)
