@@ -23,7 +23,6 @@ def check_datetime(secure_cookie):
     def create_json(folder):
         write_json(folder+'file_list.txt', dict())
 
-
     web = requests.get('http://localhost:8000/file_demo/json_request/',cookies=secure_cookie)
     server_json = json.loads(web.content)
     if not os.path.isfile(rootdir + 'file_list.txt'):
