@@ -5,7 +5,8 @@ import os
 import json
 from os.path import expanduser
 
-base = "localhost:8000"
+#base = "localhost:8000"
+base = "ec2-54-86-59-86.compute-1.amazonaws.com:8000"
 home_directory = str(expanduser("~") + "/")
 file_out = home_directory + "OneDir/file_list.txt"
 
@@ -41,8 +42,9 @@ def upload_worker(string, cookbythebook):
 
         url = "http://"+ base +"/file_demo/upload_file/"
         response = requests.post(url,files={'file': open(file_test, 'rb')}, data=directory, cookies=cookbythebook)
-
+        print response.content[0:7000]
         data = response.content[0:7000]
+
         print "Creation process finished for " + string + " ."
         new_dump = json.loads(data)
         with open(file_out, 'w') as file:

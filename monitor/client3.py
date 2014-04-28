@@ -7,8 +7,8 @@ from datetime import datetime
 from os.path import expanduser
 
 home = expanduser("~")
-#base = "ec2-54-86-59-86.compute-1.amazonaws.com:8000"
-base = "localhost:8000"
+base = "ec2-54-86-59-86.compute-1.amazonaws.com:8000"
+#base = "localhost:8000"
 #url = "http://localhost:8000/file_demo/upload_file/"
 #response = requests.post(url,files={'file': open('test.txt','rb')})
 
