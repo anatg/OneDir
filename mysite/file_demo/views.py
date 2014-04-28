@@ -1,7 +1,3 @@
-import json
-import mimetypes
-import os
-
 from django.http import HttpResponse
 from django.core.servers.basehttp import FileWrapper
 from django.template.context import RequestContext
@@ -11,14 +7,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.forms import Form
 from django.conf import settings
-
-from OneDir.mysite.file_demo.models import UserFiles
-
-
-
-
-# Handles the file upload,
-import json_helper
+from file_demo.models import UserFiles
+import json_helper, json, mimetypes, os
 
 
 @csrf_exempt
@@ -30,11 +20,18 @@ def upload_file(request):
             if form.is_valid():
                 print "file valid"
                 print request.FILES
-                instance = UserFiles(user=request.user,directory=request.POST['directory'], file=request.FILES['file'])
-                json_helper.update_file(settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/',
-                                        request.POST['directory']+'/'+instance.file.name,
-                                        settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/'+
-                                        request.POST['directory'] + '/' + instance.file.name)
+                directory = request.POST['directory']
+                instance = UserFiles(user=request.user,directory=directory, file=request.FILES['file'])
+                if directory == '':
+                     json_helper.update_file(settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/',
+                                            instance.file.name,
+                                            settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/'+
+                                            instance.file.name)
+                else:
+                    json_helper.update_file(settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/',
+                                            directory+'/'+instance.file.name,
+                                            settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/'+
+                                            directory + '/' + instance.file.name)
                 instance.save()
                 json_helper.logger(settings.MEDIA_ROOT+'log.txt', request.user.username, 'updated file: ', instance.file.name)
 
@@ -175,14 +172,16 @@ def delete_file(request):
     if request.method == 'POST':
         response = HttpResponse()
         if request.user.is_authenticated():
-            filename = request.POST['directory'] + '/' + request.POST['file']
+            if request.POST['directory'] == '':
+                filename = request.POST['file']
+            else:
+                filename = request.POST['directory'] + '/' + request.POST['file']
             file = UserFiles.objects.filter(user__username=request.user.username).get(file=('users/'+
                                                                                             str(request.user.username)+
                                                                                             '/'+filename))
             file.delete()
             json_helper.delete_file(settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/', filename,
-                                    settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/'+
-                                    request.POST['directory'] + '/' + request.POST['file'])
+                                    settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/'+filename)
             json_helper.logger(settings.MEDIA_ROOT+'log.txt', request.user.username, 'updated file: ', filename)
 
             response.content = json.dumps(json_helper.read_json(settings.MEDIA_ROOT+'users/'+
