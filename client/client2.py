@@ -14,17 +14,9 @@ def check_datetime(secure_cookie):
     DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
     rootdir = '/home/OneDir/monitor/'
 
-
-    def update_file(folder, new_file, full_path):
-        json_file = folder+'file_list.txt'
-        if os.path.isfile(full_path):
-            os.remove(full_path)
-        data = read_json(json_file)
-        data[new_file] = str(datetime.utcnow())
-        write_json(json_file, data)
     def read_json(filename):
         with open(filename, 'r') as file:
-            return json.load(file)
+            return json.loads(file)
     def write_json(filename, data):
         with open(filename, 'w') as file:
             json.dump(data, file, indent=4)
@@ -33,7 +25,7 @@ def check_datetime(secure_cookie):
 
 
     web = requests.get('http://localhost:8000/file_demo/json_request/',cookies=secure_cookie)
-    server_json = read_json(web.content[0:7000])
+    server_json = json.loads(web.content)
     if not os.path.isfile(rootdir + 'file_list.txt'):
         create_json(rootdir)
     if os.path.isfile(rootdir + 'file_list.txt'):
