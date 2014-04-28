@@ -2,9 +2,9 @@ from django.http import HttpResponse
 from django.core.servers.basehttp import FileWrapper
 from django.template.context import RequestContext
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, redirect
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.forms import Form
 from django.conf import settings
 from file_demo.models import UserFiles
@@ -49,7 +49,10 @@ def upload_file(request):
     else:
         form = Form()
 
-    documents = UserFiles.objects.all()
+    if request.user.is_authenticated:
+        documents =  UserFiles.objects.filter(user__username=request.user.username)
+    else:
+        documents = {}
     return render_to_response(
         'file_demo/upload_file.html',
         {'documents': documents, 'form': form},
@@ -127,6 +130,28 @@ def login_view(request):
     else:
         return HttpResponse()
 
+def app_login(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                return redirect('/file_demo/upload_file/')
+            else:
+                return redirect('/file_demo/app_login/')
+        else:
+            return redirect('/file_demo/app_login/')
+    else:
+        return render_to_response(
+            'file_demo/login.html',
+            context_instance=RequestContext(request))
+
+def logout_view(request):
+    logout(request)
+    return redirect('/file_demo/app_login/')
+
 #Change user's password
 #Expects a user cookie and password through POST
 #returns a 200 code for success and a 497 for failure
@@ -185,7 +210,7 @@ def delete_file(request):
             json_helper.logger(settings.MEDIA_ROOT+'log.txt', request.user.username, 'updated file: ', filename)
 
             response.content = json.dumps(json_helper.read_json(settings.MEDIA_ROOT+'users/'+
-                                                                str(request.user.username)+'/file_list.txt'))
+                                                            str(request.user.username)+'/file_list.txt'))
             response['Content-Type'] = 'application/json'
             response.status_code = 200
         else:
