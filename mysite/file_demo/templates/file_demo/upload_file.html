@@ -4,25 +4,49 @@
         <meta charset="utf-8">
         <title>Minimal Django File Upload Example</title>   
     </head>
+    <style>
+        table,th,td
+        {
+        border:1px solid black;
+        border-collapse:collapse;
+        }
+        th,td
+        {
+        padding:5px;
+        }
+        th
+        {
+        text-align:left;
+        }
+     </style>
 
     <body>
+        <table>
+             <thead>
+             <tr>
+                 <th>File</th>
+                 <th>Size</th>
+             </tr>
+             </thead>
+            <tbody>
+                 {% if documents %}
+                    {% for document in documents %}
+                        <tr class="{% if forloop.counter|divisibleby:2 %}dark{% else %}light{% endif %}">
+                            <td><a href="{{ document.file.url }}">{{ document.file.name }}</a></td>
+                            <td>{{ document.file.size }} bytes</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <p>No documents.</p>
+                {% endif %}
+            </tbody>
+        </table>
          <!-- List of uploaded documents -->
-        {% if documents %}
-            <ul>
-            {% for document in documents %}
-                <li><a href="{{ document.file.url }}">{{ document.file.name }}</a></li>
-            {% endfor %}
-            </ul>
-        {% else %}
-            <p>No documents.</p>
-        {% endif %}
+
 
         <!-- Upload form. Note enctype attribute! -->
-        <form action="{% url "upload_file" %}" method="post" enctype="multipart/form-data">
-            <p>
-                {{ form.file }}
-            </p>
-            <p><input type="submit" value="Upload" /></p>
+        <form action="{% url 'logout' %}" style="float:right; margin-right:10px; float:right; margin-top:12px;">
+                    <input type="submit" value="Logout">
         </form>
     </body>
 </html>
