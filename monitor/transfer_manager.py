@@ -3,10 +3,11 @@ import requests
 import time
 import os
 import json
+from os.path import expanduser
 
 base = "localhost:8000"
-home_directory = "/home/aacharters"
-file_out = "/home/aacharters/PycharmProjects/OneDir/file_list.txt"
+home_directory = str(expanduser("~") + "/")
+file_out = home_directory + "OneDir/file_list.txt"
 
 
 def file_strip(fullpath):
@@ -30,9 +31,7 @@ def upload_worker(string, cookbythebook):
     filename = file_strip(string)
     #location = directory_finder(string)
     file_test = string.split("OneDir/monitor/")[1]
-    print file_test
     folder = fold_strip(file_test)
-    print folder
     if filename.endswith("~"):
         print "No upload for ~ files."
     elif filename.startswith(".gout"):
