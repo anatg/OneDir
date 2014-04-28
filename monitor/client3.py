@@ -2,12 +2,84 @@ __author__ = 'Alex'
 
 import requests
 from file_watcher import *
+import json
+from datetime import datetime
+from os.path import expanduser
 
+home = expanduser("~")
 #base = "ec2-54-86-59-86.compute-1.amazonaws.com:8000"
 base = "localhost:8000"
 #url = "http://localhost:8000/file_demo/upload_file/"
 #response = requests.post(url,files={'file': open('test.txt','rb')})
 
+
+def check_datetime(secure_cookie):
+
+    DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
+    rootdir = str(home) + '/OneDir/'
+    upper_dir = str(home) + '/OneDir/monitor/'
+    file_out = rootdir + 'file_list.txt'
+    def read_json(filename):
+        with open(filename, 'r') as file:
+            return json.load(file)
+    def write_json(filename, data):
+        with open(filename, 'w') as file:
+            json.dump(data, file, indent=4)
+    def create_json(folder):
+        write_json(folder+'file_list.txt', dict())
+
+
+    web = requests.get('http://' + base + '/file_demo/json_request/',cookies=secure_cookie)
+    server_json = json.loads(web.content)
+
+    if not os.path.isfile(upper_dir + 'file_list.txt'):
+        create_json(rootdir)
+
+    if os.path.isfile(rootdir + 'file_list.txt'):
+        local_json = read_json(rootdir + 'file_list.txt')
+
+    for item in server_json:
+        time1 = datetime.strptime(server_json[item], DATETIME_FORMAT)
+        if item in local_json:
+            time2 = datetime.strptime(local_json[item], DATETIME_FORMAT)
+            if time2 < time1:
+                # fix parse
+
+                cwd = str(os.getcwd())
+                file = item.split('/')[-1]
+                direct = item.replace('/'+file, "")
+
+                os.remove(cwd + item)
+                url = "http://" + base + "/file_demo/download_file/"
+                directory = {'directory': direct, 'file': file}
+                response = requests.post(url, data=directory, cookies=secure_cookie)
+                local_json[item] = str(time1)
+        elif item not in local_json:
+            #fix parse
+
+            file = item.split('/')[-1]
+            #
+            if item == file:
+                direct = ""
+            else:
+                direct = item.replace('/'+file, "")
+            url = "http://" + base + "/file_demo/download_file/"
+            directory = {'directory': direct, 'file': file}
+            response = requests.post(url, data=directory, cookies=secure_cookie)
+            #FIGURE OUT HOW TO SAVE FILE RESPONSE
+            with open(item, 'wb') as f:
+                for chunk in response.iter_content():
+                    f.write(chunk)
+            local_json[item] = str(time1)
+    for item in local_json:
+        if item not in server_json:
+            # fix parse
+            cwd = str(os.getcwd())
+            file = item.split('/')[-1]
+
+            os.remove(cwd + file)
+    with open(file_out, 'w') as file:
+            json.dump(local_json, file, indent=4)
 
 def login():
     status_code = 0
@@ -36,8 +108,6 @@ def login():
         status_code = web.status_code
         secure_cookie = web.cookies
     return secure_cookie
-
-
 
 
 def register_user():
@@ -77,14 +147,17 @@ def main():
         res = raw_input('Do you wish to change your password? (y or n):')
         if str(res).startswith('y'):
             change_password(secure_cookie)
+        check_datetime(secure_cookie)
         print "starting onedir service..."
         print "=========================="
         print "WELCOME TO ONEDIR FILE SYNCHRONIZATION SERVICES"
         print "=========================="
+
         c = CombinedWatcher(secure_cookie)
         c.start()
     elif str(response).startswith('n'):
         secure_cookie = register_user()
+        check_datetime(secure_cookie)
         print "staring onedir service..."
         print "========================"
         c = CombinedWatcher(secure_cookie)
