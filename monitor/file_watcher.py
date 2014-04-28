@@ -9,8 +9,9 @@ from watchdog.events import FileSystemEventHandler
 from transfer_manager import upload_worker, delete_worker, modified_worker
 import multiprocessing
 import os
-
-base = "192.168.164.129"
+import client3
+base = "ec2-54-86-59-86.compute-1.amazonaws.com:8000"
+#base = "192.168.164.129"
 
 
 
@@ -95,6 +96,23 @@ class CombinedWatcher:
             while True:
                 time.sleep(1)
         except KeyboardInterrupt:
+            print "File synchronization temporarily stopped. Type restart to turn back on file synchronization or " \
+                  "quit to exit the OneDir."
+            #reply = raw_input("restart or quit?")
+            #flag = True
+
+            #while flag is True:
+             #   reply = raw_input("restart or quit?")
+              #  if reply == "restart" :
+               #     observer.stop()
+                #    observer.join()
+                 #   client3.main()
+                #elif reply == "quit":
+                 #   flag = False
+                  #  observer.stop()
+                   # observer.join()
+                #else:
+                 #   print "Please enter 'restart' or 'quit'."
             observer.stop()
         observer.join()
 
