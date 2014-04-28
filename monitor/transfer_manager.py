@@ -2,8 +2,12 @@ __author__ = 'Alex Charters'
 import requests
 import time
 import os
+import json
 
+base = "localhost:8000"
 home_directory = "/home/aacharters"
+file_out = "/home/aacharters/PycharmProjects/OneDir/file_list.txt"
+
 
 def file_strip(fullpath):
     head, tail = os.path.split(fullpath)
@@ -26,7 +30,9 @@ def upload_worker(string, cookbythebook):
     filename = file_strip(string)
     #location = directory_finder(string)
     file_test = string.split("OneDir/monitor/")[1]
+    print file_test
     folder = fold_strip(file_test)
+    print folder
     if filename.endswith("~"):
         print "No upload for ~ files."
     elif filename.startswith(".gout"):
@@ -34,11 +40,14 @@ def upload_worker(string, cookbythebook):
     else:
         directory = {'directory': folder}
 
-        url = "http://localhost:8000/file_demo/upload_file/"
+        url = "http://"+ base +"/file_demo/upload_file/"
         response = requests.post(url,files={'file': open(file_test, 'rb')}, data=directory, cookies=cookbythebook)
 
-        print response.content[0:7000]
+        data = response.content[0:7000]
         print "Creation process finished for " + string + " ."
+        new_dump = json.loads(data)
+        with open(file_out, 'w') as file:
+            json.dump(new_dump, file, indent=4)
 
 def modified_worker(orig, dest_string, cookbythebook):
 
@@ -54,17 +63,21 @@ def modified_worker(orig, dest_string, cookbythebook):
         print "Modification process finished for " + orig + " to " + dest_string +"."
 
 
+
 def delete_worker(string, cookbythebook):
 
     file = file_strip(string)
     #location = directory_finder(string)
     file_test = string.split("OneDir/monitor/")[1]
     folder = fold_strip(file_test)
-    if file.startswith(".gout"):
-        print "bye bye gout"
-    else:
+    if not file.startswith(".gout"):
         directory = {'directory': folder, 'file': file}
 
-        web = requests.post('http://localhost:8000/file_demo/delete_file/', data=directory, cookies=cookbythebook)
-        print web.content[0:7000]
+        web = requests.post('http://'+ base +'/file_demo/delete_file/', data=directory, cookies=cookbythebook)
+        data = web.content[0:7000]
+
+        #replace old JSON file with new JSON response
+        new_dump = json.loads(data)
+        with open(file_out, 'w') as file:
+            json.dump(new_dump, file, indent=4)
         print "Delete process finished for " + string + " ."
