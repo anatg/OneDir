@@ -1,33 +1,68 @@
-import json_helper
-
 __author__ = 'Anat'
-
 import requests
-import datetime
-import os
+
 from django.conf import settings
 
 
 #url = "http://localhost:8000/file_demo/upload_file/"
 #response = requests.post(url,files={'file': open('test.txt','rb')})
 
-def check_datetime():
-    media_root = settings.MEDIA_ROOT
-    if os.path.isfile(media_root + 'file_list.txt'):
-        master = str(media_root + 'file_list.txt').readlines()
-    file_path = "od/monitor/saved_files/"
-    if not os.path.isfile(file_path + 'file_list.txt'):
-        json_helper.create_json(file_path)
-    for file in master:
-        if file not in file_path:
-            data = json_helper.update_file(file_path, file, file_path + file)
-        elif file in file_path:
-            data[file] = str(datetime.utcnow())
-    for file in range(os.listdir(file_path)):
-        if file not in data:
-            data = json_helper.update_file(file_path, file, file_path + file)
+def check_datetime(secure_cookie):
+    import os
+    import json
+    from datetime import datetime
+    DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+    rootdir = '/home/OneDir/monitor/'
 
 
+    def update_file(folder, new_file, full_path):
+        json_file = folder+'file_list.txt'
+        if os.path.isfile(full_path):
+            os.remove(full_path)
+        data = read_json(json_file)
+        data[new_file] = str(datetime.utcnow())
+        write_json(json_file, data)
+    def read_json(filename):
+        with open(filename, 'r') as file:
+            return json.load(file)
+    def write_json(filename, data):
+        with open(filename, 'w') as file:
+            json.dump(data, file, indent=4)
+    def create_json(folder):
+        write_json(folder+'file_list.txt', dict())
+
+
+    web = requests.get('http://localhost:8000/file_demo/json_request/',cookies=secure_cookie)
+    server_json = read_json(web.content[0:7000])
+    if not os.path.isfile(rootdir + 'file_list.txt'):
+        create_json(rootdir)
+    if os.path.isfile(rootdir + 'file_list.txt'):
+        local_json = read_json('file_list.txt')
+    for item in server_json:
+        time1 = datetime.strptime(server_json[item], DATETIME_FORMAT)
+        if item in local_json:
+            time2 = datetime.strptime(local_json[item], DATETIME_FORMAT)
+            if time2 < time1:
+                cwd = str(os.getcwd()).split('monitor/', 1)[1]
+                file = cwd.split('/')[-1]
+                cwd = cwd.replace('/'+file, "")
+                os.remove(file)
+                url = "http://localhost:8000/file_demo/download_file/"
+                directory = {'directory': cwd, 'file': file}
+                response = requests.post(url, data=directory, cookies=secure_cookie)
+                local_json[item] = str(time1)
+        elif item not in local_json:
+            file = str(item).split('monitor/', 1)[1].split('/')[-1]
+            diction  = str(item).split('monitor/', 1)[-1].replace('/'+file, "")
+            url = "http://localhost:8000/file_demo/download_file/"
+            directory = {'directory': diction, 'file': file}
+            response = requests.post(url, data=directory, cookies=secure_cookie)
+            local_json[item] = str(time1)
+    for item in local_json and (item not in server_json):
+        cwd = str(os.getcwd()).split('monitor/', 1)[1]
+        file = cwd.split('/')[-1]
+        cwd = cwd.replace('/'+file, "")
+        os.remove(file)
 
 def login():
     status_code = 0
@@ -102,13 +137,13 @@ def main():
     elif str(response).startswith('n'):
         secure_cookie = register_user()
         print "staring ondir service..."
-
+        check_datetime(secure_cookie)
     else:
-        print "you suck"
+        print "uh oh"
         exit()
 
 def change_password(secure_cookie):
-    print "we have verified the shit out of you."
+    print "we have verified you"
     new_password = raw_input('new password: ')
     while len(new_password) > 20:
         print "Password too long!"
