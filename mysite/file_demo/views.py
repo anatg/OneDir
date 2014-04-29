@@ -201,18 +201,23 @@ def delete_file(request):
                 filename = request.POST['file']
             else:
                 filename = request.POST['directory'] + '/' + request.POST['file']
-            file = UserFiles.objects.filter(user__username=request.user.username).get(file=('users/'+
+            try:
+                file = UserFiles.objects.filter(user__username=request.user.username).get(file=('users/'+
                                                                                             str(request.user.username)+
                                                                                             '/'+filename))
-            file.delete()
-            json_helper.delete_file(settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/', filename,
+                file.delete()
+                json_helper.delete_file(settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/', filename,
                                     settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/'+filename)
-            json_helper.logger(settings.MEDIA_ROOT+'log.txt', request.user.username, 'deleted file: ', filename)
+                json_helper.logger(settings.MEDIA_ROOT+'log.txt', request.user.username, 'deleted file: ', filename)
 
-            response.content = json.dumps(json_helper.read_json(settings.MEDIA_ROOT+'users/'+
-                                                            str(request.user.username)+'/file_list.txt'))
-            response['Content-Type'] = 'application/json'
-            response.status_code = 200
+                response.content = json.dumps(json_helper.read_json(settings.MEDIA_ROOT+'users/'+
+                                                                str(request.user.username)+'/file_list.txt'))
+                response['Content-Type'] = 'application/json'
+                response.status_code = 200
+            except UserFiles.DoesNotExist:
+                response.content = "File does not exist"
+                response.status_code = 495
+
         else:
             response.content = "Failed to authenticate user"
             response.status_code = 497
