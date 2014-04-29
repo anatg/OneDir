@@ -74,7 +74,7 @@ def delete_worker(filestring, cookbythebook):
 
         web = requests.post('http://'+ base +'/file_demo/delete_file/', data=directory, cookies=cookbythebook)
         data = web.content
-        if web.statuscode == 495:
+        if web.status_code == 495:
             print "This file was not located on the OneDir server."
         else:
             new_dump = json.loads(data)
