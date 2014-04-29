@@ -30,9 +30,6 @@ class OneDirHandler(FileSystemEventHandler):
                     (filepath.endswith("transfer_manager.py")):
                 print "Don't be touching my OneDir."
             else:
-
-                print "A file was created: ( " + event.src_path + " )!"
-
                 p1 = multiprocessing.Process(target=upload_worker, args=(filepath, self.cook,))
                 p1.start()
 
@@ -47,7 +44,6 @@ class OneDirHandler(FileSystemEventHandler):
                     (filepath.endswith("transfer_manager.py")):
                 print "Don't be touching my OneDir."
             else:
-                print "A file was deleted! ( " + event.src_path + " )!"
                 p1 = multiprocessing.Process(target=delete_worker, args=(filepath, self.cook,))
                 p1.start()
 

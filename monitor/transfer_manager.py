@@ -26,24 +26,21 @@ def directory_finder(fullpath):
     return without_slash
 
 def upload_worker(string, cookbythebook):
-
-    print "Creation subprocess started."
-
     filename = file_strip(string)
-    #location = directory_finder(string)
     file_test = string.split("OneDir/monitor/")[1]
     folder = fold_strip(file_test)
     if filename.endswith("~"):
-        print "No upload for ~ files."
+        print "No upload fired for temporary files."
     elif filename.startswith(".gout"):
         print "NO EXCEPTION TODAY!"
     else:
+        print "Creation subprocess started."
+        print "A file was created: ( " + string + " )!"
         directory = {'directory': folder}
 
         url = "http://"+ base +"/file_demo/upload_file/"
         response = requests.post(url,files={'file': open(file_test, 'rb')}, data=directory, cookies=cookbythebook)
-        print response.content[0:7000]
-        data = response.content[0:7000]
+        data = response.content
 
         print "Creation process finished for " + string + " ."
         new_dump = json.loads(data)
@@ -65,20 +62,19 @@ def modified_worker(orig, dest_string, cookbythebook):
 
 
 
-def delete_worker(string, cookbythebook):
+def delete_worker(filestring, cookbythebook):
 
-    file = file_strip(string)
-    #location = directory_finder(string)
-    file_test = string.split("OneDir/monitor/")[1]
+    file = file_strip(filestring)
+    file_test = filestring.split("OneDir/monitor/")[1]
     folder = fold_strip(file_test)
     if (not file.startswith(".gout")) and (not file.endswith("~")):
+        print "Delete process started for ( " + filestring + " )."
+        print "A file was deleted! ( " + filestring + " )!"
         directory = {'directory': folder, 'file': file}
 
         web = requests.post('http://'+ base +'/file_demo/delete_file/', data=directory, cookies=cookbythebook)
-        data = web.content[0:7000]
-        print data
-        #replace old JSON file with new JSON response
+        data = web.content
         new_dump = json.loads(data)
         with open(file_out, 'w') as file:
             json.dump(new_dump, file, indent=4)
-        print "Delete process finished for " + string + " ."
+        print "Delete process finished for " + filestring + " ."

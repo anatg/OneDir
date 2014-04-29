@@ -43,22 +43,15 @@ def check_datetime(secure_cookie):
         if item in local_json:
             time2 = datetime.strptime(local_json[item], DATETIME_FORMAT)
             if time2 < time1:
-                # fix parse
-
-
                 file = item.split('/')[-1]
                 direct = item.replace('/'+file, "")
-
                 os.remove(home + "/OneDir/monitor/" + item)
                 url = "http://" + base + "/file_demo/download_file/"
                 directory = {'directory': direct, 'file': file}
                 response = requests.post(url, data=directory, cookies=secure_cookie)
                 local_json[item] = str(time1)
         elif item not in local_json:
-            #fix parse
-
             file = item.split('/')[-1]
-            #
             if item == file:
                 direct = ""
             else:
@@ -66,9 +59,6 @@ def check_datetime(secure_cookie):
             url = "http://" + base + "/file_demo/download_file/"
             directory = {'directory': direct, 'file': file}
             response = requests.post(url, data=directory, cookies=secure_cookie)
-            #FIGURE OUT HOW TO SAVE FILE RESPONSE
-            print direct
-            print home + "/OneDir/monitor/" + direct
             if not os.path.exists(home + "/OneDir/monitor/" + direct):
                 os.makedirs(home + "/OneDir/monitor/" + direct)
             with open(item, 'wb') as f:
@@ -77,7 +67,6 @@ def check_datetime(secure_cookie):
             local_json[item] = str(time1)
     for item in local_json.keys():
         if item not in server_json:
-            # fix parse
             file = item.split('/')[-1]
             os.remove(home + "/OneDir/monitor/" + item)
             del local_json[item]
@@ -91,7 +80,6 @@ def login():
     client = requests.session()
     client.get('http://' + base + '/file_demo/login/')
     csrf = client.cookies['csrftoken']
-    #print csrf
     credentials = {'username': username, 'password': password}
     header = {'X-CSRFToken': csrf}
     web = client.post('http://' + base + '/file_demo/login/', data=credentials, headers=header)
@@ -104,7 +92,6 @@ def login():
         client = requests.session()
         client.get('http://'+ base +'/file_demo/login/')
         csrf = client.cookies['csrftoken']
-        #print csrf
         credentials = {'username': username, 'password': password}
         header = {'X-CSRFToken': csrf}
         web = client.post('http://'+ base +'/file_demo/login/', data=credentials, headers=header)
@@ -167,7 +154,7 @@ def main():
         c.start()
 
     else:
-        print "you suck"
+        print "you suck, learn to type."
         exit()
 
 def change_password(secure_cookie):
