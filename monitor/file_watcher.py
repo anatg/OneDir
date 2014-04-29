@@ -9,7 +9,7 @@ from watchdog.events import FileSystemEventHandler
 from transfer_manager import upload_worker, delete_worker, modified_worker
 import multiprocessing
 import os
-import client3
+import client
 base = "ec2-54-86-59-86.compute-1.amazonaws.com:8000"
 #base = "192.168.164.129"
 
@@ -26,7 +26,7 @@ class OneDirHandler(FileSystemEventHandler):
         else:
             filepath = event.src_path
 
-            if (filepath.endswith("client3.py")) or (filepath.endswith("file_watcher.py")) or \
+            if (filepath.endswith("client.py")) or (filepath.endswith("file_watcher.py")) or \
                     (filepath.endswith("transfer_manager.py")):
                 print "Don't be touching my OneDir."
             else:
@@ -40,7 +40,7 @@ class OneDirHandler(FileSystemEventHandler):
         else:
 
             filepath = event.src_path
-            if (filepath.endswith("client3.py")) or (filepath.endswith("file_watcher.py")) or \
+            if (filepath.endswith("client.py")) or (filepath.endswith("file_watcher.py")) or \
                     (filepath.endswith("transfer_manager.py")):
                 print "Don't be touching my OneDir."
             else:
@@ -54,7 +54,7 @@ class OneDirHandler(FileSystemEventHandler):
             #for filename in os.listdir():
              #   modified_worker()
         else:
-            if (event.src_path.endswith("client3.py")) or (event.dest_path.endswith("client3.py")) or \
+            if (event.src_path.endswith("client.py")) or (event.dest_path.endswith("client.py")) or \
             (event.src_path.endswith("file_watcher.py")) or (event.dest_path.endswith("file_watcher.py")) or \
             (event.dest_path.endswith("transfer_manager.py")) or (event.dest_path.endswith("transfer_manager.py")):
                 print "Don't be touching my OneDir."
@@ -105,7 +105,7 @@ class CombinedWatcher:
                 print "================"
                 print "resynching onedir..."
                 print "================"
-                client3.check_datetime(self.secured_cookie)
+                client.check_datetime(self.secured_cookie)
             elif reply == "quit":
                 print "================"
                 print "exiting onedir..."

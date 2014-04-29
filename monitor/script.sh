@@ -3,10 +3,10 @@
 echo $(whoami)
 function move_files {
 	echo "move_files"
-	#mv client.py file_watcher.py transfer_manager.py /home/$(whoami)/OneDir/monitor/
+	mv client.py file_watcher.py transfer_manager.py /home/$(whoami)/OneDir/monitor/
 }
 function run {
-	#python client.py 
+	python client.py
 	echo "running"
 }
 
@@ -35,5 +35,3 @@ else
 	move_files
 	run	
 fi
-
-#python client.py
