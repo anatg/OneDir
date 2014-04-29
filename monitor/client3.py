@@ -32,7 +32,7 @@ def check_datetime(secure_cookie):
     web = requests.get('http://' + base + '/file_demo/json_request/',cookies=secure_cookie)
     server_json = json.loads(web.content)
 
-    if not os.path.isfile(upper_dir + 'file_list.txt'):
+    if not os.path.isfile(rootdir + 'file_list.txt'):
         create_json(rootdir)
 
     if os.path.isfile(rootdir + 'file_list.txt'):
@@ -45,12 +45,11 @@ def check_datetime(secure_cookie):
             if time2 < time1:
                 # fix parse
 
-                cwd = str(os.getcwd())
-                print "cwd:" + cwd
+
                 file = item.split('/')[-1]
                 direct = item.replace('/'+file, "")
 
-                os.remove(cwd + item)
+                os.remove(home + "/OneDir/monitor/" + item)
                 url = "http://" + base + "/file_demo/download_file/"
                 directory = {'directory': direct, 'file': file}
                 response = requests.post(url, data=directory, cookies=secure_cookie)
@@ -76,14 +75,12 @@ def check_datetime(secure_cookie):
                 for chunk in response.iter_content():
                     f.write(chunk)
             local_json[item] = str(time1)
-    for item in local_json:
+    for item in local_json.keys():
         if item not in server_json:
             # fix parse
-            cwd = str(os.getcwd())
-            print cwd
             file = item.split('/')[-1]
-
-            os.remove(cwd + file)
+            os.remove(home + "/OneDir/monitor/" + item)
+            del local_json[item]
     with open(file_out, 'w') as file:
             json.dump(local_json, file, indent=4)
 

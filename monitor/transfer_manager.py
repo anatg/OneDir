@@ -71,12 +71,12 @@ def delete_worker(string, cookbythebook):
     #location = directory_finder(string)
     file_test = string.split("OneDir/monitor/")[1]
     folder = fold_strip(file_test)
-    if not file.startswith(".gout"):
+    if (not file.startswith(".gout")) and (not file.endswith("~")):
         directory = {'directory': folder, 'file': file}
 
         web = requests.post('http://'+ base +'/file_demo/delete_file/', data=directory, cookies=cookbythebook)
         data = web.content[0:7000]
-
+        print data
         #replace old JSON file with new JSON response
         new_dump = json.loads(data)
         with open(file_out, 'w') as file:
