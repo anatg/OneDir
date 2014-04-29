@@ -53,4 +53,4 @@ def create_user_folder(folder):
 
 def logger(logger_file, user, action, sync_file):
     with open(logger_file, 'a') as file:
-        file.write(user + ' ' + action + ' ' + sync_file)
+        file.write(user + ' ' + action + ' ' + sync_file+'\n')
