@@ -45,6 +45,7 @@ def check_datetime(secure_cookie):
             if time2 < time1:
                 file = item.split('/')[-1]
                 direct = item.replace('/'+file, "")
+                print "Updated file (" + home + "/OneDir/monitor/" + item + ")."
                 os.remove(home + "/OneDir/monitor/" + item)
                 url = "http://" + base + "/file_demo/download_file/"
                 directory = {'directory': direct, 'file': file}
@@ -60,6 +61,7 @@ def check_datetime(secure_cookie):
             directory = {'directory': direct, 'file': file}
             response = requests.post(url, data=directory, cookies=secure_cookie)
             if not os.path.exists(home + "/OneDir/monitor/" + direct):
+                print "Directory created (" + home + "/OneDir/monitor/" + direct + ")."
                 os.makedirs(home + "/OneDir/monitor/" + direct)
             with open(item, 'wb') as f:
                 for chunk in response.iter_content():
@@ -68,6 +70,7 @@ def check_datetime(secure_cookie):
     for item in local_json.keys():
         if item not in server_json:
             file = item.split('/')[-1]
+            print "Local file deleted (" + home + "/OneDir/monitor/" + item + ")."
             os.remove(home + "/OneDir/monitor/" + item)
             del local_json[item]
     with open(file_out, 'w') as file:
@@ -137,8 +140,12 @@ def main():
         res = raw_input('Do you wish to change your password? (y or n):')
         if str(res).startswith('y'):
             change_password(secure_cookie)
-        check_datetime(secure_cookie)
         print "starting onedir service..."
+        print "=========================="
+        print "UPDATE LOG"
+        print "=========================="
+        check_datetime(secure_cookie)
+
         print "=========================="
         print "WELCOME TO ONEDIR FILE SYNCHRONIZATION SERVICES"
         print "=========================="
@@ -158,14 +165,13 @@ def main():
         exit()
 
 def change_password(secure_cookie):
-    print "we have verified the shit out of you."
+    print "Password verified."
     new_password = raw_input('new password: ')
     while len(new_password) > 20:
         print "Password too long!"
         new_password = raw_input('Enter new password again!')
     client2 = requests.session()
     client2.get('http://'+ base + '/file_demo/change_password/')
-    print client2.cookies
     csrf2 = client2.cookies['csrftoken']
     secure_cookie['csrftoken'] = None
     header2 = {'X-CSRFToken': csrf2}

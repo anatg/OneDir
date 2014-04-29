@@ -74,7 +74,10 @@ def delete_worker(filestring, cookbythebook):
 
         web = requests.post('http://'+ base +'/file_demo/delete_file/', data=directory, cookies=cookbythebook)
         data = web.content
-        new_dump = json.loads(data)
-        with open(file_out, 'w') as file:
-            json.dump(new_dump, file, indent=4)
+        if web.statuscode == 495:
+            print "This file was not located on the OneDir server."
+        else:
+            new_dump = json.loads(data)
+            with open(file_out, 'w') as file:
+                json.dump(new_dump, file, indent=4)
         print "Delete process finished for " + filestring + " ."

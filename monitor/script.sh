@@ -6,6 +6,7 @@ function move_files {
 	mv client.py file_watcher.py transfer_manager.py /home/$(whoami)/OneDir/monitor/
 }
 function run {
+    cd /home/$(whoami)/OneDir/monitor/
 	python client.py
 	echo "running"
 }
