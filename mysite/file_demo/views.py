@@ -207,7 +207,7 @@ def delete_file(request):
             file.delete()
             json_helper.delete_file(settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/', filename,
                                     settings.MEDIA_ROOT+'users/'+str(request.user.username)+'/'+filename)
-            json_helper.logger(settings.MEDIA_ROOT+'log.txt', request.user.username, 'updated file: ', filename)
+            json_helper.logger(settings.MEDIA_ROOT+'log.txt', request.user.username, 'deleted file: ', filename)
 
             response.content = json.dumps(json_helper.read_json(settings.MEDIA_ROOT+'users/'+
                                                             str(request.user.username)+'/file_list.txt'))
